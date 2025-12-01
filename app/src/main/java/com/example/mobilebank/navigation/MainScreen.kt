@@ -11,6 +11,10 @@ import com.example.mobilebank.screens.ContactScreen
 
 @Composable
 fun MainScreen() {
+
+    var username by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+
     var selectedTab by remember { mutableStateOf(0) }
 
     Scaffold(
@@ -22,9 +26,14 @@ fun MainScreen() {
         }
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
-
             when (selectedTab) {
-                0 -> LoginScreen()
+                0 -> LoginScreen(
+                    username = username,
+                    onUsernameChange = { username = it },
+                    password = password,
+                    onPasswordChange = { password = it }
+                )
+
                 1 -> CurrencyScreen()
                 2 -> ContactScreen()
             }

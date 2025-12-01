@@ -10,7 +10,6 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.OutlinedTextField
-
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -34,12 +33,15 @@ import com.example.mobilebank.ui.theme.InputUnfocused
 import com.example.mobilebank.ui.theme.InputError
 
 @Composable
-fun LoginScreen() {
+fun LoginScreen(
+    username: String,
+    onUsernameChange: (String) -> Unit,
+    password: String,
+    onPasswordChange: (String) -> Unit
+) {
 
     val focusManager = LocalFocusManager.current
 
-    var username by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
 
     var usernameTouched by remember { mutableStateOf(false) }
     var passwordTouched by remember { mutableStateOf(false) }
@@ -63,6 +65,7 @@ fun LoginScreen() {
         verticalArrangement = Arrangement.Center
     ) {
 
+
         Image(
             painter = painterResource(id = R.drawable.bank_logo),
             contentDescription = "logo",
@@ -71,7 +74,6 @@ fun LoginScreen() {
         )
 
         Spacer(modifier = Modifier.height(24.dp))
-
 
         Text(
             text = "Welcome",
@@ -83,10 +85,11 @@ fun LoginScreen() {
 
         Spacer(modifier = Modifier.height(40.dp))
 
+
         OutlinedTextField(
             value = username,
             onValueChange = { newValue ->
-                username = newValue.take(15)
+                onUsernameChange(newValue.take(15))
                 usernameTouched = true
             },
             label = { Text("Username") },
@@ -121,7 +124,7 @@ fun LoginScreen() {
         OutlinedTextField(
             value = password,
             onValueChange = { newValue ->
-                password = newValue.take(15)
+                onPasswordChange(newValue.take(15))
                 passwordTouched = true
             },
             label = { Text("Password") },
@@ -165,12 +168,12 @@ fun LoginScreen() {
             )
         }
 
-
-
         Spacer(modifier = Modifier.height(40.dp))
 
         Button(
-            onClick = { focusManager.clearFocus() },
+            onClick = {
+                focusManager.clearFocus()
+            },
             enabled = isUsernameValid && isPasswordValid,
             modifier = Modifier
                 .fillMaxWidth()
