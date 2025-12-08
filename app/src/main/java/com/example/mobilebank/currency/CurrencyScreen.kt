@@ -1,96 +1,49 @@
-package com.example.mobilebank.screens
+package com.example.mobilebank.currency
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.SwapVert
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mobilebank.R
 
 
 @Composable
-fun CurrencyScreen() {
+fun CurrencyScreen(viewModel: CurrencyViewModel = viewModel()) {
 
-
-    val usdToGel = 2.7050
-    val gelToUsd = 2.7110
-
-
-    var giveAmount by rememberSaveable { mutableStateOf("") }
-    var receiveAmount by rememberSaveable { mutableStateOf("") }
-
-
-    var giveCurrency by rememberSaveable { mutableStateOf("GEL") }
-    var receiveCurrency by rememberSaveable { mutableStateOf("USD") }
-
-
-    var giveExpanded by rememberSaveable { mutableStateOf(false) }
-    var receiveExpanded by rememberSaveable { mutableStateOf(false) }
-
-
-
-
-    fun calculate() {
-        val value = giveAmount.toDoubleOrNull() ?: 0.0
-
-        receiveAmount =
-            if (giveCurrency == "USD" && receiveCurrency == "GEL") {
-                String.format("%.2f", value * usdToGel)
-            } else if (giveCurrency == "GEL" && receiveCurrency == "USD") {
-                String.format("%.2f", value / gelToUsd)
-            } else value.toString()
-    }
-
-    fun swapCurrencies() {
-        val oldGive = giveCurrency
-        giveCurrency = receiveCurrency
-        receiveCurrency = oldGive
-
-        val oldAmount = giveAmount
-        giveAmount = receiveAmount
-        receiveAmount = oldAmount
-
-        calculate()
-    }
-
-
+    val state = viewModel.state.value
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(20.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
         Text(
             text = "ვალუტის კურსები",
             fontSize = 20.sp,
             modifier = Modifier.padding(bottom = 20.dp),
-//            textAlign = TextAlign.Center
         )
 
         Divider(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 32.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp),
             color = Color(0xFFE0E0E0),
             thickness = 1.dp
         )
-
 
         Box(
             modifier = Modifier
@@ -101,11 +54,10 @@ fun CurrencyScreen() {
             Column(modifier = Modifier.fillMaxWidth()) {
 
 
-
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 20.dp)
+                        .padding(20.dp)
                 ) {
 
                     Row(
@@ -121,26 +73,18 @@ fun CurrencyScreen() {
                         )
 
                         CurrencyDropdown(
-                            currency = giveCurrency,
-                            flag = if (giveCurrency == "GEL") R.drawable.flag_georgia else R.drawable.flag_usa,
-                            expanded = giveExpanded,
-                            onClick = { giveExpanded = true },
-                            onDismiss = { giveExpanded = false },
-                            onSelect = {
-                                giveCurrency = it
-                                giveExpanded = false
-                                calculate()
-                            }
+                            currency = state.giveCurrency,
+                            flag = if (state.giveCurrency == "GEL") R.drawable.flag_georgia else R.drawable.flag_usa,
+                            expanded = state.giveExpanded,
+                            onClick = { viewModel.toggleGiveExpanded(true) },
+                            onDismiss = { viewModel.toggleGiveExpanded(false) },
+                            onSelect = { viewModel.onGiveCurrencySelect(it) }
                         )
                     }
 
-
                     OutlinedTextField(
-                        value = giveAmount,
-                        onValueChange = {
-                            giveAmount = it
-                            calculate()
-                        },
+                        value = state.giveAmount,
+                        onValueChange = { viewModel.onGiveAmountChange(it) },
                         placeholder = { Text("0.00") },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -149,13 +93,11 @@ fun CurrencyScreen() {
                 }
 
 
-
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(60.dp)
                 ) {
-
 
                     Box(
                         modifier = Modifier
@@ -165,13 +107,12 @@ fun CurrencyScreen() {
                             .align(Alignment.Center)
                     )
 
-
                     Box(
                         modifier = Modifier
                             .size(48.dp)
                             .background(Color.White, RoundedCornerShape(50))
                             .align(Alignment.Center)
-                            .clickable { swapCurrencies() },
+                            .clickable { viewModel.swapCurrencies() },
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
@@ -181,16 +122,14 @@ fun CurrencyScreen() {
                             modifier = Modifier.size(28.dp)
                         )
                     }
-
                 }
-
 
 
 
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 20.dp)
+                        .padding(20.dp)
                 ) {
 
                     Row(
@@ -206,23 +145,17 @@ fun CurrencyScreen() {
                         )
 
                         CurrencyDropdown(
-                            currency = receiveCurrency,
-                            flag = if (receiveCurrency == "GEL") R.drawable.flag_georgia else R.drawable.flag_usa,
-                            expanded = receiveExpanded,
-                            onClick = { receiveExpanded = true },
-                            onDismiss = { receiveExpanded = false },
-                            onSelect = {
-                                receiveCurrency = it
-                                receiveExpanded = false
-                                calculate()
-                            }
+                            currency = state.receiveCurrency,
+                            flag = if (state.receiveCurrency == "GEL") R.drawable.flag_georgia else R.drawable.flag_usa,
+                            expanded = state.receiveExpanded,
+                            onClick = { viewModel.toggleReceiveExpanded(true) },
+                            onDismiss = { viewModel.toggleReceiveExpanded(false) },
+                            onSelect = { viewModel.onReceiveCurrencySelect(it) }
                         )
                     }
 
-
-
                     OutlinedTextField(
-                        value = receiveAmount,
+                        value = state.receiveAmount,
                         onValueChange = {},
                         placeholder = { Text("0.00") },
                         enabled = false,
@@ -235,13 +168,10 @@ fun CurrencyScreen() {
         }
 
         Divider(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 32.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp),
             color = Color(0xFFE0E0E0),
             thickness = 1.dp
         )
-
 
         Spacer(modifier = Modifier.height(30.dp))
 
@@ -250,11 +180,6 @@ fun CurrencyScreen() {
         Text(text = "სტანდარტული კურსი        1$ = 2.7110₾", fontSize = 16.sp)
     }
 }
-
-
-
-
-
 
 
 
@@ -289,7 +214,10 @@ fun CurrencyDropdown(
 
             Spacer(modifier = Modifier.width(4.dp))
 
-            Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+            Icon(
+                Icons.Default.ArrowDropDown,
+                contentDescription = null
+            )
         }
 
         DropdownMenu(

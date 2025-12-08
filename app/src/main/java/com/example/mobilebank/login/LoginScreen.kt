@@ -1,4 +1,4 @@
-package com.example.mobilebank.screens
+package com.example.mobilebank.login
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -8,8 +8,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,32 +22,15 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mobilebank.R
-import com.example.mobilebank.ui.theme.WelcomeColor
-import com.example.mobilebank.ui.theme.ButtonColor
-import com.example.mobilebank.ui.theme.ButtonTextColor
-import com.example.mobilebank.ui.theme.InputFocused
-import com.example.mobilebank.ui.theme.InputUnfocused
-import com.example.mobilebank.ui.theme.InputError
+import com.example.mobilebank.ui.theme.*
 
 @Composable
-fun LoginScreen(
-    username: String,
-    onUsernameChange: (String) -> Unit,
-    password: String,
-    onPasswordChange: (String) -> Unit
-) {
+fun LoginScreen(viewModel: LoginViewModel = viewModel()) {
 
+    val state = viewModel.state.value
     val focusManager = LocalFocusManager.current
-
-
-    var usernameTouched by remember { mutableStateOf(false) }
-    var passwordTouched by remember { mutableStateOf(false) }
-    var passwordVisible by remember { mutableStateOf(false) }
-
-
-    val isUsernameValid = username.firstOrNull()?.isUpperCase().orDefaultFalse()
-    val isPasswordValid = password.length >= 6 && password.any { it.isUpperCase() }
 
     Column(
         modifier = Modifier
@@ -57,14 +38,11 @@ fun LoginScreen(
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
-            ) {
-                focusManager.clearFocus()
-            }
+            ) { focusManager.clearFocus() }
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-
 
         Image(
             painter = painterResource(id = R.drawable.bank_logo),
@@ -83,33 +61,24 @@ fun LoginScreen(
             color = WelcomeColor
         )
 
+
         Spacer(modifier = Modifier.height(40.dp))
 
-
         OutlinedTextField(
-            value = username,
-            onValueChange = { newValue ->
-                onUsernameChange(newValue.take(15))
-                usernameTouched = true
-            },
+            value = state.username,
+            onValueChange = { viewModel.onUsernameChange(it) },
             label = { Text("Username") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
-
+            isError = state.usernameTouched && !state.isUsernameValid,
             colors = TextFieldDefaults.colors(
                 focusedIndicatorColor = InputFocused,
                 unfocusedIndicatorColor = InputUnfocused,
-                errorIndicatorColor = InputError,
-                cursorColor = InputFocused,
-                focusedLabelColor = InputFocused,
-                unfocusedLabelColor = InputUnfocused,
-                errorLabelColor = InputError
-            ),
-
-            isError = usernameTouched && !isUsernameValid
+                errorIndicatorColor = InputError
+            )
         )
 
-        if (usernameTouched && !isUsernameValid) {
+        if (state.usernameTouched && !state.isUsernameValid) {
             Text(
                 text = "გთხოვთ პირველი ასო იყოს დიდი",
                 color = Color.Red,
@@ -120,61 +89,46 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-
         OutlinedTextField(
-            value = password,
-            onValueChange = { newValue ->
-                onPasswordChange(newValue.take(15))
-                passwordTouched = true
-            },
+            value = state.password,
+            onValueChange = { viewModel.onPasswordChange(it) },
             label = { Text("Password") },
-            modifier = Modifier.fillMaxWidth(),
             singleLine = true,
-
-            visualTransformation = if (passwordVisible)
-                VisualTransformation.None
-            else
-                PasswordVisualTransformation(),
-
+            modifier = Modifier.fillMaxWidth(),
+            isError = state.passwordTouched && !state.isPasswordValid,
+            visualTransformation =
+                if (state.passwordVisible) VisualTransformation.None
+                else PasswordVisualTransformation(),
             trailingIcon = {
-                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                IconButton(onClick = { viewModel.togglePasswordVisibility() }) {
                     Icon(
-                        imageVector = if (passwordVisible) Icons.Default.Visibility
+                        imageVector = if (state.passwordVisible) Icons.Default.Visibility
                         else Icons.Default.VisibilityOff,
                         contentDescription = null
                     )
                 }
             },
-
             colors = TextFieldDefaults.colors(
                 focusedIndicatorColor = InputFocused,
                 unfocusedIndicatorColor = InputUnfocused,
-                errorIndicatorColor = InputError,
-                cursorColor = InputFocused,
-                focusedLabelColor = InputFocused,
-                unfocusedLabelColor = InputUnfocused,
-                errorLabelColor = InputError
-            ),
-
-            isError = passwordTouched && !isPasswordValid
+                errorIndicatorColor = InputError
+            )
         )
 
-        if (passwordTouched && !isPasswordValid) {
+        if (state.passwordTouched && !state.isPasswordValid) {
             Text(
                 text = "შეიყვანეთ მინიმუმ 6 ასო, აქედან ერთი დიდი ასო",
                 color = Color.Red,
                 fontSize = 14.sp,
-                modifier = Modifier.padding(start = 4.dp, top = 4.dp)
+                modifier = Modifier.padding(top = 4.dp)
             )
         }
 
         Spacer(modifier = Modifier.height(40.dp))
 
         Button(
-            onClick = {
-                focusManager.clearFocus()
-            },
-            enabled = isUsernameValid && isPasswordValid,
+            onClick = { focusManager.clearFocus() },
+            enabled = state.isFormValid,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(55.dp),
@@ -188,5 +142,3 @@ fun LoginScreen(
         }
     }
 }
-
-fun Boolean?.orDefaultFalse(): Boolean = this ?: false

@@ -1,20 +1,10 @@
-package com.example.mobilebank.screens
+package com.example.mobilebank.contact
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Call
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -23,15 +13,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.mobilebank.R
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun ContactScreen() {
+fun ContactScreen(viewModel: ContactViewModel = viewModel()) {
+
+    val state = viewModel.state.value
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -76,7 +67,7 @@ fun ContactScreen() {
         Spacer(modifier = Modifier.height(14.dp))
 
         Text(
-            text = "დაგვიკავშირდი",
+            text = state.title,
             fontSize = 15.sp,
             fontWeight = FontWeight.Bold,
             color = Color.Black
@@ -85,7 +76,7 @@ fun ContactScreen() {
         Spacer(modifier = Modifier.height(12.dp))
 
         Text(
-            text = "დაგვირეკე ნებისმიერ დროს",
+            text = state.subtitle,
             fontSize = 15.sp,
             color = Color.Gray
         )
@@ -93,34 +84,30 @@ fun ContactScreen() {
         Spacer(modifier = Modifier.height(20.dp))
 
 
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color(0XFFFFFFFF))
+                .background(Color.White)
                 .padding(horizontal = 32.dp, vertical = 16.dp)
         ) {
             Column(
                 modifier = Modifier.fillMaxWidth()
             ) {
 
-
                 Text(
                     text = "დაგვიკავშირდი",
                     fontSize = 16.sp,
-                    color = Color.Gray,
-                    modifier = Modifier
-                        .align(Alignment.Start)
+                    color = Color.Gray
                 )
 
                 Spacer(modifier = Modifier.height(18.dp))
-
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-
 
                     Icon(
                         imageVector = Icons.Default.Call,
@@ -129,13 +116,11 @@ fun ContactScreen() {
                         modifier = Modifier.size(28.dp)
                     )
 
-
                     Text(
-                        text = "+995 577 11 19 92",
+                        text = state.phoneNumber,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium
                     )
-
 
                     Text(
                         text = "დაგვირეკე",

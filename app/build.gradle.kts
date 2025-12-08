@@ -46,21 +46,14 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
-
-    // Compose BOM
+    implementation("androidx.compose.foundation:foundation:1.6.0")
     implementation(platform(libs.androidx.compose.bom))
-
-    // Compose UI
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
-
-    // Material3 (FULL)
     implementation("androidx.compose.material3:material3")
-
-    // Material Icons
     implementation("androidx.compose.material:material-icons-extended")
-
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
