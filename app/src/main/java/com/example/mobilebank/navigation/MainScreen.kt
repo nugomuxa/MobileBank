@@ -3,32 +3,36 @@ package com.example.mobilebank.navigation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.example.mobilebank.login.LoginScreen
-import com.example.mobilebank.currency.CurrencyScreen
-import com.example.mobilebank.contact.ContactScreen
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 
 @Composable
 fun MainScreen() {
 
-    var selectedTab by remember { mutableStateOf(0) }
+    val navController = rememberNavController()
+    val backStack = navController.currentBackStackEntryAsState()
+    val currentRoute = backStack.value?.destination?.route
+
+    val showBottomBar = currentRoute != Screen.Home.route
 
     Scaffold(
         bottomBar = {
-            LoginBottomNavBar(
-                selectedItem = selectedTab,
-                onItemClick = { selectedTab = it }
-            )
+            if (showBottomBar) {
+                BottomNavBar(
+                    currentRoute = currentRoute ?: Screen.Login.route,
+                    onNavigate = { route ->
+                        navController.navigate(route) {
+                            launchSingleTop = true
+                        }
+                    }
+                )
+            }
         }
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
-
-            when (selectedTab) {
-                0 -> LoginScreen()
-                1 -> CurrencyScreen()
-                2 -> ContactScreen()
-            }
+            AppNavGraph(navController = navController)
         }
     }
 }

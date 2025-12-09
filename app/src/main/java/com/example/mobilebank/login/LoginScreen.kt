@@ -27,7 +27,10 @@ import com.example.mobilebank.R
 import com.example.mobilebank.ui.theme.*
 
 @Composable
-fun LoginScreen(viewModel: LoginViewModel = viewModel()) {
+fun LoginScreen(
+    onLoginSuccess: () -> Unit,
+    viewModel: LoginViewModel = viewModel()
+) {
 
     val state = viewModel.state.value
     val focusManager = LocalFocusManager.current
@@ -61,9 +64,9 @@ fun LoginScreen(viewModel: LoginViewModel = viewModel()) {
             color = WelcomeColor
         )
 
-
         Spacer(modifier = Modifier.height(40.dp))
 
+        // USERNAME
         OutlinedTextField(
             value = state.username,
             onValueChange = { viewModel.onUsernameChange(it) },
@@ -89,6 +92,7 @@ fun LoginScreen(viewModel: LoginViewModel = viewModel()) {
 
         Spacer(modifier = Modifier.height(24.dp))
 
+        // PASSWORD
         OutlinedTextField(
             value = state.password,
             onValueChange = { viewModel.onPasswordChange(it) },
@@ -102,7 +106,8 @@ fun LoginScreen(viewModel: LoginViewModel = viewModel()) {
             trailingIcon = {
                 IconButton(onClick = { viewModel.togglePasswordVisibility() }) {
                     Icon(
-                        imageVector = if (state.passwordVisible) Icons.Default.Visibility
+                        imageVector = if (state.passwordVisible)
+                            Icons.Default.Visibility
                         else Icons.Default.VisibilityOff,
                         contentDescription = null
                     )
@@ -126,8 +131,15 @@ fun LoginScreen(viewModel: LoginViewModel = viewModel()) {
 
         Spacer(modifier = Modifier.height(40.dp))
 
+        // LOGIN BUTTON
         Button(
-            onClick = { focusManager.clearFocus() },
+            onClick = {
+                focusManager.clearFocus()
+
+                if (state.isFormValid) {
+                    onLoginSuccess()   // ← SUCCESS → NAVIGATE TO HOME
+                }
+            },
             enabled = state.isFormValid,
             modifier = Modifier
                 .fillMaxWidth()
